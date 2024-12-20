@@ -38,6 +38,8 @@ model User {
   id               String               @id @default(cuid())
   name             String?
   email            String?              @unique
+  password         String?
+  role             Role                 @default(USER) // Add a role field with a default value
   emailVerified    DateTime?
   image            String?
   accounts         Account[]
@@ -100,4 +102,9 @@ model UserLessonProgress {
   completedAt DateTime @default(now())
 
   @@id([userId, lessonId])
+}
+
+enum Role {
+  USER
+  ADMIN
 }
