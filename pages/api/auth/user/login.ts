@@ -10,7 +10,10 @@ const loginSchema = z.object({
   password: z.string(),
 });
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
   if (req.method !== "POST") {
     return res.status(405).json({ message: "Method Not Allowed" });
   }
@@ -32,7 +35,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Compare the password with the stored hashed password
-    const isPasswordValid = await bcrypt.compare(loginData.password, user.password || "");
+    const isPasswordValid = await bcrypt.compare(
+      loginData.password,
+      user.password || "",
+    );
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
@@ -43,23 +49,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     // Store the token in cookies (optional, for session-based auth)
-    res.setHeader("Set-Cookie", `token=${token}; HttpOnly; Secure; Path=/; Max-Age=172800`);
+    res.setHeader(
+      "Set-Cookie",
+      `token=${token}; HttpOnly; Secure; Path=/; Max-Age=172800`,
+    );
 
-    // Respond with user info and token
-    return res.status(200).json({
-      message: "Login successful",
-      token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-      },
-    });
+    // If username is found, return the response with the token and the username's name
+    
+      return res.status(200).send({
+        token,
+        user: user.email
+      });
     
   } catch (error) {
     console.error("Error in login handler:", error);
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ message: "Validation Error", errors: error.errors });
+      return res.status(400).json({
+        message: "Validation Error",
+        errors: error.errors,
+      });
     }
     return res.status(500).json({ message: "Internal Server Error" });
   }

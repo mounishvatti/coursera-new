@@ -1,15 +1,39 @@
-import Head from 'next/head'
-import Link from 'next/link'
-import Image from "next/image"
-import { useRouter } from "next/router"
-import { useSession, signIn, signOut } from "next-auth/react"
+import Head from "next/head";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { signOut, useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 
 const Nav = () => {
-  const { data: session } = useSession()
-  const router = useRouter()
+  const [userName, setUserName] = useState<string>("User");
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+
+  useEffect(() => {
+    // Check if the user is logged in by checking localStorage for the token
+    const token = localStorage.getItem("token");
+    const storedUserName = localStorage.getItem("userName");
+
+    if (token && storedUserName) {
+      setIsLoggedIn(true);
+      setUserName(storedUserName); // Set the user's name from localStorage
+    }
+  }, []); // Empty dependency array so this runs only once on mount
+
+  const handleLogout = () => {
+    // Clear localStorage and update state on logout
+    localStorage.removeItem("token");
+    localStorage.removeItem("userName");
+    setIsLoggedIn(false);
+    setUserName("");
+  };
+
+  const { data: session } = useSession();
+  const router = useRouter();
+
   const handleSignIn = () => {
-    router.push("/user/login")
-  }
+    router.push("/user/login");
+  };
+
   return (
     <>
       <Head>
@@ -18,32 +42,37 @@ const Nav = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <nav className='p-4 mb-6 flex items-center space-x-3'>
-        <ul className='flex gap-2'>
+      <nav className="p-4 mb-6 flex items-center space-x-3">
+        <ul className="flex gap-2">
           <li>
-            <Link href="/" className='underline'>
-            <span className="inline-block ml-3 text-3xl font-bold truncate text-blue-700">
-              coursera
-            </span>
+            <Link href="/" className="underline">
+              <span className="inline-block ml-3 text-3xl font-bold truncate text-blue-700">
+                coursera
+              </span>
             </Link>
           </li>
           {session && (
             <li>
-              <Link href="/admin" className='underline'>
+              <Link href="/admin" className="underline">
                 Admin
               </Link>
             </li>
           )}
         </ul>
-        <div className='text-right text-sm flex-1'>
-          {session ? (
-            <div className='text-slate-700'>
-              Signed in as {session.user?.email} <br />
-              <button className='underline' onClick={() => signOut()}>Sign out</button>
+        <div className="text-right text-sm flex-1">
+          {isLoggedIn ? (
+            <div className="text-slate-700">
+              <span className="font-medium pr-4">Hello, {userName}</span>
+              <button className="bg-black hover:bg-gray-900 text-white font-medium font-sans py-2 px-4 rounded" onClick={handleLogout}>
+                Sign out
+              </button>
             </div>
           ) : (
             <p>
-              <button className='bg-blue-700 hover:bg-blue-900 text-white font-medium font-sans py-2 px-4 rounded' onClick={() => handleSignIn()}>
+              <button
+                className="bg-blue-700 hover:bg-blue-900 text-white font-medium font-sans py-2 px-4 rounded"
+                onClick={handleSignIn}
+              >
                 Login
               </button>
             </p>
@@ -51,7 +80,7 @@ const Nav = () => {
         </div>
       </nav>
     </>
-  )
-}
+  );
+};
 
 export default Nav;

@@ -16,7 +16,7 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
-  const handleLogin = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleLogin = async(e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault(); // Prevent form submission
     const email = document.getElementById("email") as HTMLInputElement;
     const password = document.getElementById("password") as HTMLInputElement;
@@ -27,23 +27,26 @@ export function LoginForm({
     };
 
     // Send data to the API
-    axios
-      .post("/api/auth/user/login", data)
-      .then((res) => {
-        console.log("Login successful:", res.data);
-        alert("Login successful! You are now logged in.");
-        // Optionally redirect the user to a home page
-        window.location.href = "/";
-      })
-      .catch((err) => {
-        console.error(
-          "Error during login:",
-          err.response?.data || err.message,
-        );
-        alert(
-          err.response?.data?.message || "Login failed. Please try again.",
-        );
-      });
+    try {
+      const response = await axios.post("/api/auth/user/login", data);
+      //console.log("Login successful:", response.data);
+  
+      // If login is successful, alert the user
+      alert("Login successful! You are now logged in.");
+  
+      const { token, user } = response.data;
+      
+      // Store the token and username in localStorage
+      localStorage.setItem("token", token);
+      localStorage.setItem("userName", user || "User");  // Store the user's name
+  
+      // Optionally redirect the user to a home page
+      window.location.href = "/";
+    } catch (err: any) {
+      console.error("Error during login:", err.response?.data || err.message);
+      // Handle errors
+      alert(err.response?.data?.message || "Login failed. Please try again.");
+    }
   };
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
