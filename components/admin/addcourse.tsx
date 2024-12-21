@@ -4,6 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const AddCourse = () => {
     const [lessons, setLessons] = useState<{ name: string, description: string, slug: string, videourl: string, courseId: string }[]>([{ name: "", description: "", slug: "", videourl: "", courseId: "" }]);
@@ -40,10 +41,10 @@ const AddCourse = () => {
         // Send data to the API
         try {
             const addNewCourse = await axios.post("/api/admin/course/coursefunctions", coursedata);
-            alert("Course added successfully");
+            toast.success("Course added successfully");
         } catch (error) {
             console.error(error);
-            alert("Error adding course");
+            toast.error("Error adding course");
         }
     };
 

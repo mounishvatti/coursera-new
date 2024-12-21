@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import axios from "axios";
+import { toast } from "react-toastify";
 import {
   Card,
   CardContent,
@@ -32,7 +33,7 @@ export function LoginForm({
       //console.log("Login successful:", response.data);
   
       // If login is successful, alert the user
-      alert("Login successful! You are now logged in.");
+      toast.success("Login successful! You are now logged in.");
   
       const { token, user, role } = response.data;
       
@@ -46,7 +47,7 @@ export function LoginForm({
     } catch (err: any) {
       console.error("Error during login:", err.response?.data || err.message);
       // Handle errors
-      alert(err.response?.data?.message || "Login failed. Please try again.");
+      toast.error(err.response?.data?.message || "Login failed. Please try again.");
     }
   };
   return (
