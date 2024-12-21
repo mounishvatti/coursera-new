@@ -1,10 +1,10 @@
 generator client {
-  provider        = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider             = "postgresql"
-  url                  = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Account {
@@ -62,7 +62,8 @@ model Course {
   id          Int      @id @default(autoincrement())
   name        String
   description String
-  slug        String
+  thumbnail   String
+  slug        String   @unique
   lessons     Lesson[]
   author      User     @relation(fields: [authorId], references: [id])
   authorId    String
@@ -73,7 +74,7 @@ model Lesson {
   id             Int                  @id @default(autoincrement())
   name           String
   description    String
-  slug           String
+  slug           String               @unique
   course         Course               @relation(fields: [courseId], references: [id])
   courseId       Int
   video          Video?

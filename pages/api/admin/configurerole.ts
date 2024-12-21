@@ -1,4 +1,4 @@
-// pages/api/updateRole.ts
+// pages/api/admin/configurerole.ts
 import { NextApiRequest, NextApiResponse } from 'next';
 import { prisma } from '@/utils/prisma';  // Assuming you are using Prisma for DB management
 
@@ -6,7 +6,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (req.method === 'POST') {
     const { email, role } = req.body;
 
-    if (!email || !role || (role !== 'admin' && role !== 'user')) {
+    if (!email || !role || (role !== 'ADMIN' && role !== 'USER')) {
       return res.status(400).json({ error: 'Invalid data. Ensure username and role are provided correctly.' });
     }
 

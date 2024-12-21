@@ -1,8 +1,9 @@
+import { toast } from "react-toastify";
+import { useState } from "react";
 import axios from "axios";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
 
 export default function ConfigureRoles() {
     const [email, setEmail] = useState("");
@@ -14,27 +15,28 @@ export default function ConfigureRoles() {
         e.preventDefault(); // Prevent form submission
         setLoading(true); // Set loading state
         setError(null); // Reset error state
-
+        const email = document.getElementById("email") as HTMLInputElement;
+        const role = document.getElementById("role") as HTMLSelectElement;
         // Validate inputs
-        if (!email || !role) {
-            setError("Both email and role are required.");
+        if (!email.value || !role.value) {
+            toast.error("Both email and role are required.");
             setLoading(false);
             return;
         }
 
         const data = {
-            email,
-            role: role.toUpperCase(),
+            email: email.value,
+            role: role.value,
         };
 
         try {
-            await axios.post("/api/auth/admin/configurerole", data);
-            alert("Role updated successfully");
+            await axios.post("/api/admin/configurerole", data);
+            toast.success("Role updated successfully! 🎉");
             setEmail(""); // Reset email field
             setRole(""); // Reset role field
         } catch (err) {
             console.error(err);
-            setError("Failed to update role. Please try again.");
+            toast.error("Failed to update role. Please try again.");
         } finally {
             setLoading(false); // Reset loading state
         }
@@ -46,11 +48,6 @@ export default function ConfigureRoles() {
                 <h2 className="text-2xl font-semibold text-center mb-6">
                     🙇🏻‍♂️ Update Roles
                 </h2>
-                {error && (
-                    <div className="text-red-500 text-sm mb-4">
-                        {error}
-                    </div>
-                )}
                 <div className="space-y-6">
                     <div className="space-y-2">
                         <Label
@@ -71,21 +68,17 @@ export default function ConfigureRoles() {
                     </div>
 
                     <div className="space-y-2">
-                        <Label
-                            htmlFor="role"
-                            className="block text-sm font-medium text-gray-700"
-                        >
-                            Role
-                        </Label>
-                        <Input
+                        <select
                             id="role"
-                            type="text"
-                            placeholder="e.g., ADMIN, USER"
                             value={role}
                             onChange={(e) => setRole(e.target.value)}
                             required
-                            className="w-full p-3 border rounded-lg border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
+                            className="w-min border rounded-lg border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                            <option value="" disabled>Select a role</option>
+                            <option value="ADMIN">Admin</option>
+                            <option value="USER">User</option>
+                        </select>
                     </div>
 
                     <Button

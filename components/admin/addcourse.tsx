@@ -1,49 +1,62 @@
-import React from "react";
-import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
-import { Course } from "@prisma/client";
+import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import axios from "axios";
 
 const AddCourse = () => {
-    const handleAddCourse = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const [lessons, setLessons] = useState<{ name: string, description: string, slug: string, videourl: string, courseId: string }[]>([{ name: "", description: "", slug: "", videourl: "", courseId: "" }]);
+
+    const handleAddCourse = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault(); // Prevent form submission
-        const name = document.getElementById("name") as HTMLInputElement;
-        const description = document.getElementById(
-            "description",
-        ) as HTMLInputElement;
-        const published = document.getElementById(
-            "published",
-        ) as HTMLInputElement;
+
+        const coursename = document.getElementById("coursename") as HTMLInputElement;
+        const description = document.getElementById("description") as HTMLInputElement;
+        //const published = document.getElementById("published") as HTMLInputElement;
+        const author = document.getElementById("author") as HTMLInputElement;
+        const thumbnail = document.getElementById("thumbnail") as HTMLInputElement;
 
         // Validate inputs
-        if (!name.value || !description.value) {
-            alert("Both name and description are required.");
+        if (!coursename.value || !description.value || !lessons.length) {
+            alert("Course name, description, and lessons are required.");
             return;
         }
 
-        const data = {
-            name: name.value,
-            description: description.value,
-            published: published.checked,
+        const coursedata = {
+            name: coursename.value.toString(),
+            author: author.value.toString(),
+            thumbnail: thumbnail.value.toString(),
+            description: description.value.toString(),
+            lessons: lessons.map(lesson => ({
+                name: lesson.name,
+                description: lesson.description,
+                slug: lesson.slug,
+                videourl: lesson.videourl,
+                courseId: lesson.courseId, 
+            })),
         };
 
         // Send data to the API
-        fetch("/api/courses", {
-            method: "POST",
-            body: JSON.stringify(data),
-        })
-            .then((res) => res.json())
-            .then((data) => {
-                alert("Course added successfully");
-            })
-            .catch((error) => {
-                console.error(error);
-                alert("Error adding course");
-            });
+        try {
+            const addNewCourse = await axios.post("/api/admin/course/coursefunctions", coursedata);
+            alert("Course added successfully");
+        } catch (error) {
+            console.error(error);
+            alert("Error adding course");
+        }
     };
+
+    const handleLessonChange = (index: number, field: string, value: string) => {
+        const updatedLessons = [...lessons];
+        updatedLessons[index][field as keyof typeof updatedLessons[number]] = value;
+        setLessons(updatedLessons);
+    };
+
+    const handleAddLesson = () => {
+        setLessons([...lessons, { name: "", description: "", slug: "", videourl: "", courseId: "" }]);
+    };
+
     return (
         <form>
             <div className="grid gap-6">
@@ -90,11 +103,57 @@ const AddCourse = () => {
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="lessons">Lessons</Label>
-                        <Textarea
-                            id="lessons"
-                            placeholder="Enter your course's lessons.."
-                            required
-                        />
+                        {lessons.map((lesson, index) => (
+                            <div key={index} className="grid gap-2">
+                                <Input
+                                    id={`lesson-name-${index}`}
+                                    type="text"
+                                    placeholder="Lesson Name" 
+                                    value={lesson.name}
+                                    onChange={(e) =>
+                                        handleLessonChange(index, "name", e.target.value)
+                                    }
+                                    required
+                                />
+                                <Textarea
+                                    id={`lesson-description-${index}`}
+                                    placeholder="Lesson Description"
+                                    value={lesson.description}
+                                    onChange={(e) =>
+                                        handleLessonChange(index, "description", e.target.value)
+                                    }
+                                    required
+                                />
+                                <Input
+                                    id={`lesson-slug-${index}`}
+                                    type="text"
+                                    placeholder="Lesson Slug"
+                                    value={lesson.slug}
+                                    onChange={(e) =>
+                                        handleLessonChange(index, "slug", e.target.value)
+                                    }
+                                    required
+                                />
+                                <Input
+                                    id={`lesson-videourl-${index}`}
+                                    type="text"
+                                    placeholder="Lesson URL"
+                                    value={lesson.videourl}
+                                    onChange={(e) =>
+                                        handleLessonChange(index, "videourl", e.target.value)
+                                    }
+                                    required
+                                />
+                                <hr className="border-gray-800 my-4" />
+                            </div>
+                        ))}
+                        <Button
+                            type="button"
+                            onClick={handleAddLesson}
+                            className="w-min justify-center items-center"
+                        >
+                            Add Lesson
+                        </Button>
                     </div>
                     <Button
                         type="submit"
