@@ -34,11 +34,12 @@ export function LoginForm({
       // If login is successful, alert the user
       alert("Login successful! You are now logged in.");
   
-      const { token, user } = response.data;
+      const { token, user, role } = response.data;
       
       // Store the token and username in localStorage
       localStorage.setItem("token", token);
       localStorage.setItem("userName", user || "User");  // Store the user's name
+      localStorage.setItem("role", role || "User");  // Store the user's role
   
       // Optionally redirect the user to a home page
       window.location.href = "/";

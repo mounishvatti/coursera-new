@@ -40,6 +40,7 @@ model User {
   email            String?              @unique
   password         String?
   role             Role                 @default(USER) // Add a role field with a default value
+  blacklisted      Boolean              @default(false)
   emailVerified    DateTime?
   image            String?
   accounts         Account[]

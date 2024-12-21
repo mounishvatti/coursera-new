@@ -1,21 +1,24 @@
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { signOut, useSession } from "next-auth/react";
+// import { signOut, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
 const Nav = () => {
   const [userName, setUserName] = useState<string>("User");
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [role, setRole] = useState<string>("User");
 
   useEffect(() => {
     // Check if the user is logged in by checking localStorage for the token
     const token = localStorage.getItem("token");
     const storedUserName = localStorage.getItem("userName");
+    const storedRole = localStorage.getItem("role");
 
-    if (token && storedUserName) {
+    if (token && storedUserName && storedRole) {
       setIsLoggedIn(true);
       setUserName(storedUserName); // Set the user's name from localStorage
+      setRole(storedRole); // Set the user's role from localStorage
     }
   }, []); // Empty dependency array so this runs only once on mount
 
@@ -26,8 +29,6 @@ const Nav = () => {
     setIsLoggedIn(false);
     setUserName("");
   };
-
-  const { data: session } = useSession();
   const router = useRouter();
 
   const handleSignIn = () => {
@@ -51,32 +52,38 @@ const Nav = () => {
               </span>
             </Link>
           </li>
-          {session && (
-            <li>
-              <Link href="/admin" className="underline">
-                Admin
-              </Link>
-            </li>
-          )}
         </ul>
         <div className="text-right text-sm flex-1">
-          {isLoggedIn ? (
-            <div className="text-slate-700">
-              <span className="font-medium pr-4">Hello, {userName}</span>
-              <button className="bg-black hover:bg-gray-900 text-white font-medium font-sans py-2 px-4 rounded" onClick={handleLogout}>
-                Sign out
-              </button>
-            </div>
-          ) : (
-            <p>
-              <button
-                className="bg-blue-700 hover:bg-blue-900 text-white font-medium font-sans py-2 px-4 rounded"
-                onClick={handleSignIn}
-              >
-                Login
-              </button>
-            </p>
-          )}
+          {isLoggedIn
+            ? (
+              <div className="text-slate-700">
+                {role === "ADMIN" && (
+                  <Link href="/admin/dashboard" className="underline">
+                    Admin portal
+                  </Link>
+                )}
+                <Link href="/" className="underline p-4 font-bold">Home</Link>
+                <span className="border border-black rounded font-medium m-2 p-2">
+                  Hello, {userName}
+                </span>
+                <button
+                  className="bg-black hover:bg-gray-900 text-white font-medium font-sans py-2 px-4 rounded"
+                  onClick={handleLogout}
+                >
+                  Sign out
+                </button>
+              </div>
+            )
+            : (
+              <p>
+                <button
+                  className="bg-blue-700 hover:bg-blue-900 text-white font-medium font-sans py-2 px-4 rounded"
+                  onClick={handleSignIn}
+                >
+                  Login
+                </button>
+              </p>
+            )}
         </div>
       </nav>
     </>
